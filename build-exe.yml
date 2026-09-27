@@ -1,0 +1,39 @@
+name: Build Windows exe
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pyinstaller playwright country_state_city
+
+      - name: Build the exe
+        run: |
+          pyinstaller --noconfirm --onefile --windowed `
+            --name "GMS_By_DarkStar" `
+            --icon "icon.ico" `
+            --collect-all playwright `
+            --collect-all country_state_city `
+            main.py
+
+      - name: Upload the exe as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GMS_By_DarkStar-windows-exe
+          path: dist/GMS_By_DarkStar.exe
